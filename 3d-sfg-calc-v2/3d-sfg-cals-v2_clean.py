@@ -430,7 +430,7 @@ while pc <= 2:
 
     dk = dkr if mode == 1 else dkt
     
-    for dEN, dE_val in enumerate(dE, start=1):
+    for dE_val in dE:
         for theta_fix in theta_angles:
             for dz in dzlist:
                 for u in ulist:
@@ -508,11 +508,11 @@ while pc <= 2:
                                     f"-sDth{sDtheta_val}"
                                     f"-(azi0+tilt{theta_fix:.0f}+psi{'Q'})"
                                     f"-(m{round(m, 1)}+u{round(u, 1)}"
-                                    f"+dz{round(dz, 1)}+int{iteration}).csv")
+                                    f"+dz{round(dz, 1)}+int{iteration}).xlsx")
                             
                             df = pd.DataFrame(temp3, columns=["phi_temp", "theta_fix", "random", "dz", "u", "ratio", "OH", "CH"])
                             export_path = os.path.join(os.getcwd(), filename)
-                            df.to_csv(export_path, index=False)
+                            df.to_excel(export_path, index=False)
                                         
     pc += 1 
 
