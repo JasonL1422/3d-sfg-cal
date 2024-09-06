@@ -4,6 +4,7 @@
 reference: https://doi.org/10.1021/acs.jpcb.2c03897
 "v8.3" was re-written in python script to run in university computing resources
 cf. v1,
+xlsx
 multi-dimension loops were updated with for loops.
 related lines and functions were moved to proper locations.
 unnecessary lines were deleted.
@@ -452,7 +453,7 @@ while pc <= 2:
 
     dk = dkr if mode == 1 else dkt
     
-    for dEN, dE_val in enumerate(dE, start=1):
+    for dEN in dE:
         for theta_fix in theta_angles:
             for dz in dzlist:
                 for u in ulist:
@@ -553,11 +554,11 @@ while pc <= 2:
                                     f"-sDth{sDtheta_val}"
                                     f"-(azi0+tilt{theta_fix:.0f}+psi{'Q'})"
                                     f"-(m{round(m, 1)}+u{round(u, 1)}"
-                                    f"+dz{round(dz, 1)}+int{iteration}).csv")
+                                    f"+dz{round(dz, 1)}+int{iteration}).xlsx")
                             
                             df = pd.DataFrame(temp3, columns=["phi_temp", "theta_fix", "random", "dz", "u", "ratio", "OH", "CH"])
                             export_path = os.path.join(os.getcwd(), filename)
-                            df.to_csv(export_path, index=False)
+                            df.to_excel(export_path, index=False)
                             #---------------Loop for phi ration (0 - 360, every 15)------------------------------------
                                         
     pc += 1 #--keep this for PC variation
