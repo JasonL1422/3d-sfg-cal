@@ -3,6 +3,7 @@
 """
 reference: https://doi.org/10.1021/acs.jpcb.2c03897
 "v8.3" was re-written in python script to run in university computing resources
+There were some changes in loops.
 jongcheol1422@gmail.com
 """
 
@@ -194,7 +195,7 @@ print("------------------1st check (copy&paste test1.txt)----------------------"
 
 
 
-print("--------------------------------skipped---------------------------------")
+print("--------------------------1st check ends here---------------------------")
 
 #eul
 def euler_matrix(phi, theta, psi):  #euler matrix (ZYZ convention)
@@ -219,11 +220,13 @@ def euler_matrix(phi, theta, psi):  #euler matrix (ZYZ convention)
 
 #calculate Chai2 values (27 for each R and T).
 #each of 27 hyper go through eul, Lfactor, and projection (IV) to result in one Chai2 value.
+#eul, RL, RIV are all 3x3 matrices. 
 
 def Rchai2OH(var1, var2, var3, phi, theta, psi):
     eul = euler_matrix(phi, theta, psi)
     return sum(
-        eul[var1 - 1, i] * eul[var2 - 1, j] * eul[var3 - 1, k] * RL[var1 - 1, 0] * RL[var2 - 1, 1] * RL[var3 - 1, 2] *
+        eul[var1 - 1, i] * eul[var2 - 1, j] * eul[var3 - 1, k] * \
+            RL[var1 - 1, 0] * RL[var2 - 1, 1] * RL[var3 - 1, 2] * \
         RIV[0, var1 - 1] * RIV[1, var2 - 1] * RIV[2, var3 - 1] * hyperOH[i, j, k]
         for i in range(3) for j in range(3) for k in range(3)
     )
@@ -231,7 +234,8 @@ def Rchai2OH(var1, var2, var3, phi, theta, psi):
 def Rchai2CH(var1, var2, var3, phi, theta, psi):
     eul = euler_matrix(phi, theta, psi)
     return sum(
-        eul[var1 - 1, i] * eul[var2 - 1, j] * eul[var3 - 1, k] * RL[var1 - 1, 0] * RL[var2 - 1, 1] * RL[var3 - 1, 2] *
+        eul[var1 - 1, i] * eul[var2 - 1, j] * eul[var3 - 1, k] * \
+            RL[var1 - 1, 0] * RL[var2 - 1, 1] * RL[var3 - 1, 2] * \
         RIV[0, var1 - 1] * RIV[1, var2 - 1] * RIV[2, var3 - 1] * hyperCH[i, j, k]
         for i in range(3) for j in range(3) for k in range(3)
     )
@@ -239,7 +243,8 @@ def Rchai2CH(var1, var2, var3, phi, theta, psi):
 def Tchai2OH(var1, var2, var3, phi, theta, psi):
     eul = euler_matrix(phi, theta, psi)
     return sum(
-        eul[var1 - 1, i] * eul[var2 - 1, j] * eul[var3 - 1, k] * TL[var1 - 1, 0] * TL[var2 - 1, 1] * TL[var3 - 1, 2] *
+        eul[var1 - 1, i] * eul[var2 - 1, j] * eul[var3 - 1, k] * \
+            TL[var1 - 1, 0] * TL[var2 - 1, 1] * TL[var3 - 1, 2] * \
         TIV[0, var1 - 1] * TIV[1, var2 - 1] * TIV[2, var3 - 1] * hyperOH[i, j, k]
         for i in range(3) for j in range(3) for k in range(3)
     )
@@ -247,7 +252,8 @@ def Tchai2OH(var1, var2, var3, phi, theta, psi):
 def Tchai2CH(var1, var2, var3, phi, theta, psi):
     eul = euler_matrix(phi, theta, psi)
     return sum(
-        eul[var1 - 1, i] * eul[var2 - 1, j] * eul[var3 - 1, k] * TL[var1 - 1, 0] * TL[var2 - 1, 1] * TL[var3 - 1, 2] *
+        eul[var1 - 1, i] * eul[var2 - 1, j] * eul[var3 - 1, k] * \
+            TL[var1 - 1, 0] * TL[var2 - 1, 1] * TL[var3 - 1, 2] * \
         TIV[0, var1 - 1] * TIV[1, var2 - 1] * TIV[2, var3 - 1] * hyperCH[i, j, k]
         for i in range(3) for j in range(3) for k in range(3)
     )
@@ -408,11 +414,23 @@ compute_functions = {
     "TSPSCH": lambda phi, theta, psi: compute_TSPSCH(phi, theta, psi)
 }
 
+def gen_ang(phi1, theta1, psi, sDphi, sDtheta, sDpsi):
+    if psi == 'random':
+        gen_psi = float(random.uniform(0, 360))
+    else:
+        gen_psi = float(random.gauss(psi, sDpsi))
+    
+    return {
+        'phi': float(random.gauss(phi1, sDphi)),
+        'theta': float(random.gauss(theta1, sDtheta)),
+        'psi': gen_psi
+    }
+
 print("------------------2nd check (copy&paste test2.txt)----------------------")
 
 
 
-print("--------------------------------skipped---------------------------------")
+print("--------------------------2nd check ends here---------------------------")
 
 #---------------------------------------------input2-----------------------------------------------
 mode = 2 #1 for reflection 2 for transmission
@@ -423,16 +441,23 @@ sDtheta = [10]
 dzlist = [5]
 ulist = [4]
 
-#------------------------------------------------------------------------------
-test1=[]
-test2=[]
-test3=[]
-test4=[]
+iteration = 5
+m = 12
+#--------------------------------------------------------------------------------------------------
 
+### for tests
+tt1_a = np.zeros((25, iteration, m), dtype=np.complex128) # m OH dipoles, 5 iteration, at 25 phi angles
+tt1_b = np.zeros((25, iteration), dtype=np.complex128)
+tt1_c = np.zeros((25, iteration), dtype=np.complex128)
+tt1_d = np.zeros(25,dtype=np.complex128)
+#Ori angles
+tt1_e = np.zeros((25, iteration, m, 3), dtype=np.float64) # m OH dipoles, 5 iteration, at 25 phi angles
+#seq
+tt1_f = np.zeros((25, iteration, m), dtype=np.float64) # m OH dipoles, 5 iteration, at 25 phi angles
+###
 
 pc = 2
 while pc <= 2:
-
     if mode == 1:
         polarization_combination = ["RSSP", "RPPS", "RPPP", "RSSS", "RPSP", "RSPS", "RSPP", "RPSS"]
     else:
@@ -465,29 +490,23 @@ while pc <= 2:
                         sDphiN = 1
                         while sDphiN <= len(sDphi_list):
                             phi_temp = 0
-                            temp3 = []
+                            temp3 = []                            
                             while phi_temp <= 360:
-                                theta1 = theta_fix
                                 phi1 = phi_temp
+                                theta1 = theta_fix
+                                ###
+                                phi_index = int(phi_temp / 15) ### for tests
+                                ###
                                 
-                                
-                                Ori1 = {
-                                    'phi': float(random.gauss(phi1, np.radians(sDphi_list[sDphiN - 1]))),
-                                    'theta': float(random.gauss(theta1, np.radians(sDtheta_list[sDthetaN - 1]))),
-                                    'psi': float(random.uniform(0, 360))
-                                }
-                                #print(Ori1)
-                                
-                                INTERATION = 20
-                                m = 12
                                 seqtemp = np.concatenate([
                                     np.ones(int(np.ceil(-0.1 + m * (dEList[dEN - 1] + 1) / 2))),
                                     np.zeros(int(np.floor(0.1 + m * (1 - (dEList[dEN - 1] + 1) / 2))))
                                 ])
+                                ###
                                 #print(seqtemp)
 
-                                G = np.zeros(INTERATION)
-                                J = np.zeros(INTERATION)
+                                G = np.zeros(iteration)
+                                J = np.zeros(iteration)
                                 ddd = np.zeros((111, 3))
                                 fff = np.zeros((111, 3))
 
@@ -499,21 +518,21 @@ while pc <= 2:
                                 fff[(p - 1) * 111 + q - 1, 1] = u
                                 fff[(p - 1) * 111 + q - 1, 0] = dz
 
-                                for w in range(1, INTERATION + 1):
+                                for w in range(1, iteration + 1):
                                     seq = random.sample(list(seqtemp), len(seqtemp))
                                     seq = np.array(seq)
-                                    #print(seq)
 
-                                    OHtemp1 = np.zeros(m)
-                                    CHtemp1 = np.zeros(m)
-                                    
+                                    OHtemp1 = np.zeros(m, dtype=np.complex128)
+                                    CHtemp1 = np.zeros(m, dtype=np.complex128)                                    
                                     for i in range(m):
+                                        Ori1 = gen_ang(phi_temp, theta_fix, 'random', sDphi_list[sDphiN-1], sDtheta_list[sDthetaN-1], 90) #90 is random number
                                         Oritemp1 = Ori1
                                         Oritemp2 = {
                                             'phi': Oritemp1['phi'],
                                             'theta': Oritemp1['theta'] + 180,
                                             'psi': Oritemp1['psi'] + 180
                                         }
+                                        ###
                                         #print(Oritemp1)
                                         
                                         Oritemp3 = Oritemp1 if seq[i] == 1 else Oritemp2
@@ -521,10 +540,11 @@ while pc <= 2:
                                         phi_calc = float(Oritemp3['phi'])
                                         theta_calc = float(Oritemp3['theta'])
                                         psi_calc = float(Oritemp3['psi'])
-                                        
-                                        #test1.append(phi_calc)
-                                        #test2.append(theta_calc)
-                                        #test3.append(psi_calc)
+                                        ###
+                                        tt1_e[phi_index, w-1, i, 0] = phi_calc
+                                        tt1_e[phi_index, w-1, i, 1] = theta_calc
+                                        tt1_e[phi_index, w-1, i, 2] = psi_calc
+                                        ###
                                         
                                         OHtemp2 = ((np.exp(-1j * dk * u * 1e-9) - 1) / dk) * \
                                             compute_functions[pcOH](phi_calc, theta_calc, psi_calc) * \
@@ -536,31 +556,43 @@ while pc <= 2:
 
                                         OHtemp1[i] = OHtemp2
                                         CHtemp1[i] = CHtemp2
-                                        ###print(OHtemp2)
+                                        ###
+
+                                        #--------For loop for i (m=12) ends here-----------------------------------------------
 
                                     tempOH = np.sum(OHtemp1)
                                     tempCH = np.sum(CHtemp1)
-                                    G[w - 1] = (np.conj(tempOH) * tempOH) / (np.cos(np.radians(Tangle_SFG)) ** 2)
-                                    J[w - 1] = (np.conj(tempCH) * tempCH) / (np.cos(np.radians(Tangle_SFG)) ** 2)
-                                    #print(G)
-
-                                ddd[(p - 1) * 111 + q - 1, 2] = np.mean(G) # the # of elements in G: interation
-                                fff[(p - 1) * 111 + q - 1, 2] = np.mean(J)
-
+                                    G[w-1] = (np.conj(tempOH) * tempOH) / (np.cos(np.radians(Tangle_SFG)) ** 2) # G #elements=iteration
+                                    J[w-1] = (np.conj(tempCH) * tempCH) / (np.cos(np.radians(Tangle_SFG)) ** 2)
+                                    ###
+                                    tt1_a[phi_index, w-1, :] = OHtemp1 # 12 OH dipoles at 5 iteration at 25 degrees
+                                    tt1_b[phi_index, w-1] = tempOH # summed OH dipoles at 5 iteration at 25 degrees
+                                    tt1_c[phi_index, w-1] = G[w-1] # 5 calculated OH intensity at each iteration at 25 degrees
+                                    ###              
+                                    tt1_f[phi_index, w-1] = seq # 12 OH dipoles at 5 iteration at 25 degrees
+                                    #-------------For loop for w (iteration) ends here----------------------------------------
+                                    
+                                ddd[(p-1) * 111 + q-1, 2] = np.mean(G) # the # of elements in G: iteration
+                                fff[(p-1) * 111 + q-1, 2] = np.mean(J)
+                                ###
+                                tt1_d[phi_index] = np.mean(G)
+                                ###
+                                
                                 OHCHpara = [
                                     phi_temp,  
                                     theta_fix,
                                     psi_calc,  
-                                    ddd[p - 1, 0],
-                                    ddd[p - 1, 1],
-                                    ddd[p - 1, 2] / fff[p - 1, 2] if fff[p - 1, 2] > 0 else 0,
-                                    ddd[p - 1, 2],
-                                    fff[p - 1, 2]
+                                    ddd[p-1, 0],
+                                    ddd[p-1, 1],
+                                    ddd[p-1, 2] / fff[p-1, 2] if fff[p-1, 2] > 0 else 0,
+                                    ddd[p-1, 2],
+                                    fff[p-1, 2]
                                 ]
 
                                 temp3.append(OHCHpara)  
 
-                                phi_temp += 15
+                                phi_temp += 15                        
+                                #---------------While loop for 0 ~360 phi ration ends here------------------------------------
 
                             filename = (f"DE{int(dEList[dEN - 1] * 100)}"
                                         f"-{polarization_combination[pc - 1]}"
@@ -568,7 +600,7 @@ while pc <= 2:
                                         f"-sDth{sDtheta_list[sDthetaN - 1]}"
                                         f"-(azi{phi1:.0f}+tilt{theta_fix:.0f}+psi{'Q'})"
                                         f"-(m{round(m, 1)}+u{round(u, 1)}"
-                                        f"+dz{round(dz, 1)}+int{INTERATION}).csv")
+                                        f"+dz{round(dz, 1)}+int{iteration}).csv")
 
                             df = pd.DataFrame(temp3)
                             export_path = os.path.join(os.getcwd(), filename)
@@ -582,55 +614,33 @@ while pc <= 2:
         dEN += 1
     pc += 1
 
+print("------------------3rd check (copy&paste test3.txt)----------------------")
 
+print("=======Angles=======")
+""""
+tt1_e (Ori1):  At each phi_temp angle (0-24), at each iteration (0-999), all 12 OH dipoles (0-11)"""
+print(tt1_e)
+print(tt1_e[24])
+print(tt1_e.shape)
 
-#print("test1=",test1)
-#print("test2=",test2)
-#print("test3=",test3)
-#print(len(test1))
-
+print("=======seq=======")
 """
-t1 = OHtemp2
-t2 = np.conj(OHtemp2)
-t3 = np.conj(OHtemp2) * OHtemp2
-#print("t1=",t1)
-#print("t2=",t2)
-#print("t3=",t3)
+"tt1_f (seq):  At each phi_temp angle (0-24), at each iteration (0-999), all 12 dipole directions (0-11)"""
+print(tt1_f)
+print(tt1_f[24])
+print(tt1_f.shape)
 
-tt1 = G
-tt2 = len(G)
-tt3 = np.conj(OHtemp2) * OHtemp2
-print("G=",tt1)
-print("len_G=",tt2)
-#print("t3=",t3)
-
-tempa=seqtemp            
-print(tempa)             
-
-
-import matplotlib.pyplot as plt
-
-data1 = np.random.normal(180, 10, 500)
-std_dev_radians = np.radians(10) 
-data2 = [random.gauss(180, np.radians(10)) for _ in range(500)]
-
-# Plot the two distributions
-plt.figure(figsize=(14, 6))
-
-# Plot for Normal Distribution
-plt.subplot(1, 2, 1)
-plt.hist(data1, bins=20, color='skyblue', edgecolor='black', alpha=0.7)
-plt.title('Normal Distribution: (180, 10)')
-plt.xlabel('Value')
-plt.ylabel('Frequency')
-
-# Plot for Uniform Distribution
-plt.subplot(1, 2, 2)
-plt.hist(data2, bins=20, color='lightgreen', edgecolor='black', alpha=0.7)
-plt.title('(180, np.radians(10))')
-plt.xlabel('Value (Radians)')
-plt.ylabel('Frequency')
-
-plt.tight_layout()
-plt.show()
+print("=======Dipoles, int, mean =======")
 """
+tt1_a (OHtemp1)  :  At each phi_temp angle (0-24), at each iteration (0-999), all 12 OH dipoles (0-11)
+tt1_b (tempOH)   :  At each phi_temp angle (0-24), at each iteration (0-999), summed OH diples (.)
+tt1_c (G[w-1])   :  At each phi_temp angle (0-24), at each iteration (0-999), calculated int (.)
+tt1_d (np.mean.G):  At each phi_temp angle (0-24), mean intensity (.)
+"""
+print(tt1_c[24])
+print(tt1_c.shape)
+print(tt1_d)
+print(tt1_d.shape)
+
+print("--------------------------3rd check ends here---------------------------")
+
