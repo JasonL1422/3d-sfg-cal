@@ -1,0 +1,21 @@
+In RC, open Interactive Desktop.
+…
+
+A. Upload the two Python file and Shell file to RC.
+
+B-1. When you run on your Interactive PC
+python -m pip install --user numpy
+python -m pip install --user pandas
+
+B-2. When you submit to Univ Cloud
+(Make sure you edited the parameters properly)
+Submit the Shell file (.sh)
+Shell file is already created accordingly
+—> If necessary, open and edit the python file name accordingly.
+Command: $sbatch sh_sfg_submit.sh	
+
+C. You can check the status by typing the below
+$squeue -u Username
+In my case, $squeue -u jul1371
+
+jul1371@psu.edu
