@@ -3,13 +3,11 @@
 """
 reference: https://doi.org/10.1021/acs.jpcb.2c03897
 "v8.3" was re-written in python script to run in university computing resources
-cf. v1,
-xlsx
-multi-dimension loops were updated with for loops.
-related lines and functions were moved to proper locations.
-unnecessary lines were deleted.
-faster.
 
+v3.
+Multi-loops were updated; unnecessary lines were removed; some are out of the loops, etc.
+1.6 times faster than the Mathematica code.
+PPS, theta=90, m=12, 1000 interation takes 83 sec
 """
 
 import numpy as np
