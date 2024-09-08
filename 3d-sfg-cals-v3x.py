@@ -437,7 +437,6 @@ for pc2 in PClist2:
                             #---------------Loop for phi ration (0 - 360, every 15)------------------------------------
                             temp3 = []
                             for phi_temp in range(0, 361, 15):
-                                phi_index = int(phi_temp / 15) # index for test
 
                                 seqtemp = np.concatenate([
                                     np.ones(int(np.ceil(-0.1 + m * (dE_val + 1) / 2))),
