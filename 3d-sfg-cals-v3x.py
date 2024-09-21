@@ -22,7 +22,7 @@ lambda_IR = 3500 * 10**-9 #m
 lambda_Vis = 800 * 10**-9
 lambda_SFG = (lambda_IR * lambda_Vis) / (lambda_IR + lambda_Vis)
 
-n_water_IR, n_water_Vis, n_water_SFG = 1, 1, 1
+n_water_IR, n_water_Vis, n_water_SFG = 1, 1, 1     #for water:  1.275, 1.326, 1.333  #for air:   1, 1, 1
 n_Cellulose_IR, n_Cellulose_Vis, n_Cellulose_SFG = 1.4577, 1.464, 1.467
 Iangle_Vis, Iangle_IR = 18, -18
 
